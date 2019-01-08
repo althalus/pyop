@@ -319,6 +319,25 @@ class TestProviderHandleTokenRequest(object):
                                     self.authn_request_args)
 
     @patch('time.time', MOCK_TIME)
+    def test_code_exchange_request_with_offline_scope_has_refresh_token(self):
+        self.provider.authz_state = AuthorizationState(HashBasedSubjectIdentifierFactory('salt'),
+                                                       refresh_token_lifetime=10,
+                                                       refresh_token_threshold=2)
+        scope_req = {'scope': 'openid offline_access'}
+        self.authorization_code_exchange_request_args['code'] = self.create_authz_code(extra_auth_req_params=scope_req)
+        response = self.provider._do_code_exchange(self.authorization_code_exchange_request_args, None)
+        assert 'refresh_token' in response.keys()
+
+    @patch('time.time', MOCK_TIME)
+    def test_code_exchange_request_without_offline_scope(self):
+        self.provider.authz_state = AuthorizationState(HashBasedSubjectIdentifierFactory('salt'),
+                                                       refresh_token_lifetime=10,
+                                                       refresh_token_threshold=2)
+        self.authorization_code_exchange_request_args['code'] = self.create_authz_code()
+        response = self.provider._do_code_exchange(self.authorization_code_exchange_request_args, None)
+        assert 'refresh_token' not in response.keys()
+
+    @patch('time.time', MOCK_TIME)
     def test_code_exchange_request_with_claims_requested_in_id_token(self):
         claims_req = {'claims': ClaimsRequest(id_token=Claims(email=None))}
         self.authorization_code_exchange_request_args['code'] = self.create_authz_code(extra_auth_req_params=claims_req)
