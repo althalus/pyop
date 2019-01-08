@@ -425,7 +425,7 @@ class Provider(object):
         token_request['client_id']  = verify_client_authentication(self.clients, token_request, http_headers.get('Authorization'))
         return token_request
 
-    def handle_userinfo_request(self, request=None, http_headers=None):
+    def handle_userinfo_request(self, request=None, http_headers=None, extra_scope_dict=None):
         # type: (Optional[str], Optional[Mapping[str, str]]) -> oic.oic.message.OpenIDSchema
         """
         Handles a userinfo request.

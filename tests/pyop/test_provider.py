@@ -474,6 +474,17 @@ class TestProviderHandleUserinfoRequest(object):
         with pytest.raises(InvalidAccessToken):
             self.provider.handle_userinfo_request(urlencode({'access_token': access_token}))
 
+    def test_handle_userinfo_with_extra_scope(self, monkeypatch):
+        custom_claim_val = 'test_claim1'
+        custom_claim = 'custom_claim'
+        custom_scope = 'custom_scope'
+        monkeypatch.setitem(self.provider.userinfo._db[TEST_USER_ID], custom_claim, custom_claim_val)
+        access_token = self.create_access_token({'scope': 'openid custom_scope'})
+        response = self.provider.handle_userinfo_request(urlencode({'access_token': access_token}), extra_scope_dict={'custom_scope': [custom_claim]})
+        print(response)
+
+        assert response['custom_claim'] == custom_claim_val
+
 
 @pytest.mark.usefixtures('inject_provider')
 class TestProviderHandleRegistrationRequest(object):
