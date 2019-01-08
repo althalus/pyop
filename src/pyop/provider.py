@@ -340,7 +340,7 @@ class Provider(object):
             raise InvalidTokenRequest(str(e), token_request) from e
 
         authentication_request = self.authz_state.get_authorization_request_for_code(token_request['code'])
-        
+
         if token_request['client_id'] != authentication_request['client_id']:
             logger.info('Authorization code \'%s\' belonging to \'%s\' was used by \'%s\'',
                         token_request['code'], authentication_request['client_id'], token_request['client_id'])
@@ -415,7 +415,7 @@ class Provider(object):
         token_request['client_id']  = verify_client_authentication(self.clients, token_request, http_headers.get('Authorization'))
         return token_request
 
-    def handle_userinfo_request(self, request=None, http_headers=None):
+    def handle_userinfo_request(self, request=None, http_headers=None, extra_scope_dict=None):
         # type: (Optional[str], Optional[Mapping[str, str]]) -> oic.oic.message.OpenIDSchema
         """
         Handles a userinfo request.
@@ -433,7 +433,7 @@ class Provider(object):
         scope = introspection['scope']
         user_id = self.authz_state.get_user_id_for_subject_identifier(introspection['sub'])
 
-        requested_claims = scope2claims(scope.split())
+        requested_claims = scope2claims(scope.split(), extra_scope_dict)
         authentication_request = self.authz_state.get_authorization_request_for_access_token(bearer_token)
         requested_claims.update(self._get_requested_claims_in(authentication_request, 'userinfo'))
         user_claims = self.userinfo.get_claims_for(user_id, requested_claims)
