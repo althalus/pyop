@@ -185,6 +185,7 @@ class AuthorizationState(object):
 
         introspection_params = {k: v for k, v in authz_info.items() if k in TokenIntrospectionResponse.c_param}
         introspection.update(introspection_params)
+        introspection['username'] = self.get_user_id_for_subject_identifier(introspection_params['sub'])
         return introspection
 
     def create_refresh_token(self, access_token_value):
