@@ -217,6 +217,15 @@ class TestProviderAuthorize(object):
         id_token = assert_id_token_base_claims(resp['id_token'], self.provider.signing_key, self.provider, auth_req)
         assert id_token['foo'] == 'bar'
 
+    def test_authorize_id_token_includes_typ_header(self):
+        self.authn_request_args['response_type'] = 'id_token'
+        auth_req = AuthorizationRequest().from_dict(self.authn_request_args)
+        resp = self.provider.authorize(auth_req, TEST_USER_ID)
+
+        id_token = IdToken().from_jwt(resp['id_token'], key=[self.provider.signing_key])
+        assert id_token.jws_header['typ'] == 'JWT'
+
+
     def test_authorize_include_user_claims_from_scope_in_id_token_if_no_userinfo_req_can_be_made(self):
         self.authn_request_args['response_type'] = 'id_token'
         self.authn_request_args['scope'] = 'openid profile'
@@ -326,7 +335,7 @@ class TestProviderHandleTokenRequest(object):
         scope_req = {'scope': 'openid offline_access'}
         self.authorization_code_exchange_request_args['code'] = self.create_authz_code(extra_auth_req_params=scope_req)
         response = self.provider._do_code_exchange(self.authorization_code_exchange_request_args, None)
-        assert 'refresh_token' in response.keys()
+        assert 'refresh_token' in response.keys() and response['refresh_token'] in self.provider.authz_state.refresh_tokens
 
     @patch('time.time', MOCK_TIME)
     def test_code_exchange_request_without_offline_scope(self):
