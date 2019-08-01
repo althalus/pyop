@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyop',
-    version='2.0.8',
+    version='3.0.1',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     url='https://github.com/IdentityPython/pyop',
@@ -11,7 +11,7 @@ setup(
     author_email='satosa-dev@lists.sunet.se',
     description='OpenID Connect Provider (OP) library in Python.',
     install_requires=[
-        'oic==0.14',
+        'oic >= 0.15.0',
         'pymongo'
     ]
 )
